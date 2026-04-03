@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ScrollToTop } from "./components/ScrollToTop";
 
 import Index from "./pages/Index";
+import Feed from "./pages/Feed";
 import ToolsHub from "./pages/ToolsHub";
 import Guides from "./pages/Guides";
 import GuideDetail from "./pages/GuideDetail";
@@ -17,6 +18,7 @@ export function AppRouter() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/feed" element={<Feed />} />
         <Route path="/tools" element={<ToolsHub />} />
         <Route path="/guides" element={<Guides />} />
         <Route path="/guides/:guideId" element={<GuideDetail />} />

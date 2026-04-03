@@ -2,11 +2,13 @@ import { useSeoMeta } from '@unhead/react';
 import { Link } from 'react-router-dom';
 import {
   Shield, Globe, Zap, MessageCircle, Lock, Eye, ArrowRight,
-  ChevronRight, ExternalLink, Fingerprint, Database
+  ChevronRight, ExternalLink, Fingerprint, Database, Radio, ShieldCheck,
 } from 'lucide-react';
 import { SiteLayout } from '@/components/layout/SiteLayout';
 import { tools, featuredCollections } from '@/data/tools';
 import { useEffect, useRef, useState } from 'react';
+import { useMixedFeed } from '@/hooks/usePrivacyFeed';
+import { PostCard, PostCardSkeleton } from '@/components/feed/PostCard';
 
 const heroToolIcons = [
   { Icon: Shield, label: 'Tor', delay: 0 },
@@ -126,6 +128,71 @@ function getToolIcon(iconName: string) {
   return iconMap[iconName] || <Shield className="w-5 h-5" />;
 }
 
+// ── Live feed preview widget for homepage ────────────────────────────────────
+function LiveFeedPreview() {
+  const { data: events, isLoading } = useMixedFeed(6);
+
+  return (
+    <section className="py-20 relative border-t border-[#00ff9f]/5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <AnimateOnScroll>
+          <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#00ff9f] animate-pulse" />
+                <p className="font-mono text-xs text-[#00ff9f]/50 uppercase tracking-widest">
+                  // live nostr stream
+                </p>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white">
+                Privacy <span className="text-[#00ff9f]">Feed</span>
+              </h2>
+              <p className="mt-1 text-sm text-white/40">
+                Real-time dispatches from verified sources and the cypherpunk community.
+              </p>
+            </div>
+            <Link
+              to="/feed"
+              className="flex items-center gap-2 px-5 py-2.5 border border-[#00ff9f]/25 rounded text-sm font-mono text-[#00ff9f]/70 hover:text-[#00ff9f] hover:bg-[#00ff9f]/5 hover:border-[#00ff9f]/50 transition-all"
+            >
+              <Radio className="w-3.5 h-3.5" />
+              Open Live Feed
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </AnimateOnScroll>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {isLoading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <AnimateOnScroll key={i} delay={i * 0.05}>
+                  <PostCardSkeleton compact />
+                </AnimateOnScroll>
+              ))
+            : (events ?? []).slice(0, 6).map((event, i) => (
+                <AnimateOnScroll key={event.id} delay={i * 0.05}>
+                  <PostCard event={event} compact />
+                </AnimateOnScroll>
+              ))}
+        </div>
+
+        <div className="mt-6 text-center">
+          <Link
+            to="/feed"
+            className="inline-flex items-center gap-2 text-sm font-mono text-[#00ff9f]/50 hover:text-[#00ff9f] transition-colors"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            View full feed with verified sources
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const Index = () => {
   useSeoMeta({
     title: '0xPrivacy.online - Break the Digital Cage',
@@ -207,8 +274,15 @@ const Index = () => {
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
-              to="/manifesto"
+              to="/feed"
               className="flex items-center gap-2 px-8 py-3.5 border border-[#00ff9f]/30 text-[#00ff9f] font-bold text-sm rounded transition-all hover:bg-[#00ff9f]/5 hover:border-[#00ff9f]/50"
+            >
+              <Radio className="w-4 h-4" />
+              Live Feed
+            </Link>
+            <Link
+              to="/manifesto"
+              className="flex items-center gap-2 px-6 py-3.5 border border-white/10 text-white/50 text-sm rounded transition-all hover:bg-white/5 hover:text-white/70"
             >
               Read the Manifesto
             </Link>
@@ -380,87 +454,57 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ==================== PRIVACY PULSE ==================== */}
-      <section className="py-20 relative border-t border-[#00ff9f]/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimateOnScroll>
-            <div className="mb-10">
-              <p className="font-mono text-xs text-[#00ffff]/40 uppercase tracking-widest mb-2">
-                // stay informed
-              </p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white">
-                Privacy <span className="text-[#00ffff]">Pulse</span>
-              </h2>
-              <p className="mt-2 text-sm text-white/40">
-                Essential sources to stay ahead of the surveillance machine.
-              </p>
-            </div>
-          </AnimateOnScroll>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {privacyPulseFeeds.map((feed, i) => (
-              <AnimateOnScroll key={feed.title} delay={i * 0.08}>
-                <a
-                  href={feed.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block p-5 border border-[#00ffff]/10 rounded-lg bg-white/[0.01] hover:bg-[#00ffff]/[0.03] hover:border-[#00ffff]/25 transition-all"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="text-xl shrink-0">{feed.icon}</span>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-white group-hover:text-[#00ffff] transition-colors text-sm">
-                          {feed.title}
-                        </h3>
-                        <ExternalLink className="w-3 h-3 text-white/20" />
-                      </div>
-                      <p className="text-xs text-white/40 leading-relaxed">{feed.description}</p>
-                    </div>
-                  </div>
-                </a>
-              </AnimateOnScroll>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ==================== LIVE NOSTR FEED PREVIEW ==================== */}
+      <LiveFeedPreview />
 
       {/* ==================== QUICK LINKS BANNER ==================== */}
       <section className="py-16 relative border-t border-[#00ff9f]/5">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimateOnScroll>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <Link
+                to="/feed"
+                className="group p-5 border border-[#00ff9f]/15 rounded-lg bg-white/[0.01] hover:bg-[#00ff9f]/[0.04] hover:border-[#00ff9f]/40 transition-all text-center relative overflow-hidden"
+              >
+                <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#00ff9f] animate-pulse" />
+                <div className="w-10 h-10 mx-auto mb-3 rounded-lg border border-[#00ff9f]/25 flex items-center justify-center">
+                  <Radio className="w-5 h-5 text-[#00ff9f]/60 group-hover:text-[#00ff9f] transition-colors" />
+                </div>
+                <h3 className="font-bold text-white text-sm mb-1">Live Feed</h3>
+                <p className="text-xs text-white/40">Nostr stream</p>
+              </Link>
+
               <Link
                 to="/guides"
-                className="group p-6 border border-[#00ff9f]/10 rounded-lg bg-white/[0.01] hover:bg-[#00ff9f]/[0.03] hover:border-[#00ff9f]/25 transition-all text-center"
+                className="group p-5 border border-[#00ff9f]/10 rounded-lg bg-white/[0.01] hover:bg-[#00ff9f]/[0.03] hover:border-[#00ff9f]/25 transition-all text-center"
               >
-                <div className="w-12 h-12 mx-auto mb-3 rounded-lg border border-[#00ff9f]/20 flex items-center justify-center">
-                  <Fingerprint className="w-6 h-6 text-[#00ff9f]/60 group-hover:text-[#00ff9f] transition-colors" />
+                <div className="w-10 h-10 mx-auto mb-3 rounded-lg border border-[#00ff9f]/20 flex items-center justify-center">
+                  <Fingerprint className="w-5 h-5 text-[#00ff9f]/60 group-hover:text-[#00ff9f] transition-colors" />
                 </div>
-                <h3 className="font-bold text-white text-sm mb-1">Privacy Guides</h3>
-                <p className="text-xs text-white/40">Step-by-step tutorials</p>
+                <h3 className="font-bold text-white text-sm mb-1">Guides</h3>
+                <p className="text-xs text-white/40">Step-by-step</p>
               </Link>
 
               <Link
                 to="/vault"
-                className="group p-6 border border-[#00ffff]/10 rounded-lg bg-white/[0.01] hover:bg-[#00ffff]/[0.03] hover:border-[#00ffff]/25 transition-all text-center"
+                className="group p-5 border border-[#00ffff]/10 rounded-lg bg-white/[0.01] hover:bg-[#00ffff]/[0.03] hover:border-[#00ffff]/25 transition-all text-center"
               >
-                <div className="w-12 h-12 mx-auto mb-3 rounded-lg border border-[#00ffff]/20 flex items-center justify-center">
-                  <Database className="w-6 h-6 text-[#00ffff]/60 group-hover:text-[#00ffff] transition-colors" />
+                <div className="w-10 h-10 mx-auto mb-3 rounded-lg border border-[#00ffff]/20 flex items-center justify-center">
+                  <Database className="w-5 h-5 text-[#00ffff]/60 group-hover:text-[#00ffff] transition-colors" />
                 </div>
                 <h3 className="font-bold text-white text-sm mb-1">Mirror Vault</h3>
-                <p className="text-xs text-white/40">IPFS-backed archives</p>
+                <p className="text-xs text-white/40">IPFS archives</p>
               </Link>
 
               <Link
                 to="/community"
-                className="group p-6 border border-[#00ff9f]/10 rounded-lg bg-white/[0.01] hover:bg-[#00ff9f]/[0.03] hover:border-[#00ff9f]/25 transition-all text-center"
+                className="group p-5 border border-[#00ff9f]/10 rounded-lg bg-white/[0.01] hover:bg-[#00ff9f]/[0.03] hover:border-[#00ff9f]/25 transition-all text-center"
               >
-                <div className="w-12 h-12 mx-auto mb-3 rounded-lg border border-[#00ff9f]/20 flex items-center justify-center">
-                  <Shield className="w-6 h-6 text-[#00ff9f]/60 group-hover:text-[#00ff9f] transition-colors" />
+                <div className="w-10 h-10 mx-auto mb-3 rounded-lg border border-[#00ff9f]/20 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-[#00ff9f]/60 group-hover:text-[#00ff9f] transition-colors" />
                 </div>
-                <h3 className="font-bold text-white text-sm mb-1">Join the Scouts</h3>
-                <p className="text-xs text-white/40">Become a contributor</p>
+                <h3 className="font-bold text-white text-sm mb-1">Scouts</h3>
+                <p className="text-xs text-white/40">Earn NIP-58 badges</p>
               </Link>
             </div>
           </AnimateOnScroll>

@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const navLinks = [
   { path: '/', label: 'Home' },
+  { path: '/feed', label: 'Live Feed' },
   { path: '/tools', label: 'Tools' },
   { path: '/guides', label: 'Guides' },
   { path: '/vault', label: 'Mirror Vault' },
