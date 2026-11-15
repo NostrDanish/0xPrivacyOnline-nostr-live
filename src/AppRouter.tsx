@@ -4,6 +4,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import Feed from "./pages/Feed";
 import ToolsHub from "./pages/ToolsHub";
+import Relays from "./pages/Relays";
 import Guides from "./pages/Guides";
 import GuideDetail from "./pages/GuideDetail";
 import MirrorVault from "./pages/MirrorVault";
@@ -20,6 +21,7 @@ export function AppRouter() {
         <Route path="/" element={<Index />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/tools" element={<ToolsHub />} />
+        <Route path="/relays" element={<Relays />} />
         <Route path="/guides" element={<Guides />} />
         <Route path="/guides/:guideId" element={<GuideDetail />} />
         <Route path="/vault" element={<MirrorVault />} />
